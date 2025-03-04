@@ -26,34 +26,33 @@ final class MovieCell: UICollectionViewCell {
     }()
     
     private let titleLabel = UILabel()
-
+    
     private let favoriteButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "star"), for: .normal)
         button.tintColor = .gray
         return button
     }()
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     private func setupUI() {
         contentView.addSubview(movieImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(favoriteButton)
         
         favoriteButton.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
-
+        
         movieImageView.translatesAutoresizingMaskIntoConstraints = false
         favoriteButton.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
         
         NSLayoutConstraint.activate([
             movieImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -65,13 +64,12 @@ final class MovieCell: UICollectionViewCell {
             favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
             favoriteButton.widthAnchor.constraint(equalToConstant: 30),
             favoriteButton.heightAnchor.constraint(equalToConstant: 30),
-
+            
             titleLabel.topAnchor.constraint(equalTo: movieImageView.bottomAnchor, constant: 8),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5)
+            titleLabel.centerXAnchor.constraint(equalTo: movieImageView.centerXAnchor)
         ])
     }
-
+    
     func configure(with movie: Movie, isFavorite: Bool) {
         self.movie = movie
         titleLabel.text = movie.title
@@ -82,15 +80,14 @@ final class MovieCell: UICollectionViewCell {
         } else {
             movieImageView.image = UIImage(named: "placeholder")
         }
-
         updateFavoriteButton(isFavorite: isFavorite)
     }
-
+    
     @objc private func favoriteButtonTapped() {
         guard let movie = movie else { return }
         delegate?.didTapFavoriteButton(for: movie)
     }
-
+    
     private func updateFavoriteButton(isFavorite: Bool) {
         let imageName = isFavorite ? "star.fill" : "star"
         favoriteButton.setImage(UIImage(systemName: imageName), for: .normal)

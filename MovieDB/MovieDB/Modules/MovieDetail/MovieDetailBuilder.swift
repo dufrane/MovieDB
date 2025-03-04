@@ -6,14 +6,11 @@
 //
 
 import UIKit
-
-final class MovieDetailBuilder {
-    static func build(with movie: Movie, coordinator: MovieDetailCoordinator) -> UIViewController {
-        let apiService = APIService()
-        let viewModel = MovieDetailViewModel(coordinator: coordinator, apiService: apiService)
-        let viewController = MovieDetailViewController(viewModel: viewModel, movie: movie)
-        viewModel.fetchMovieDetail(movieID: movie.id)
-        return viewController
-    }
-}
-
+//
+//final class MovieDetailBuilder {
+//    static func build(movie: Movie) -> MovieDetailViewController {
+//        let viewModel = MovieDetailViewModel(coordinator: movie, apiService: APIService())
+//        let viewController = MovieDetailViewController(viewModel: viewModel, movie: movie)
+//        return viewController
+//    }
+//}

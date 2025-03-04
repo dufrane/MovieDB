@@ -1,20 +1,22 @@
 //
-//  Movie.swift
+//  MoviesEntities.swift
 //  MovieDB
 //
-//  Created by Dmytro Vasylenko on 24.02.2025.
+//  Created by Dmytro Vasylenko on 08.03.2025.
 //
 
 import Foundation
 
-struct Movie: Decodable {
+import Foundation
+
+struct Movie: Codable {
     let id: Int
     let title: String
     let overview: String
     let posterPath: String?
     let releaseDate: String?
     let voteAverage: Double
-
+    
     enum CodingKeys: String, CodingKey {
         case id
         case title
@@ -25,3 +27,6 @@ struct Movie: Decodable {
     }
 }
 
+struct MoviesResponse: Codable {
+    let results: [Movie]
+}

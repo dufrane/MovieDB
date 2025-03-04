@@ -12,7 +12,7 @@ final class FavoritesService {
     
     private let context = CoreDataStack.shared.context
 
-// MARK: - AddToFavorites
+// MARK: - Add to favorites
     func addMovieToFavorites(movie: Movie) {
         let favorite = FavoriteMovie(context: context)
         favorite.id = Int64(movie.id)
@@ -22,7 +22,7 @@ final class FavoritesService {
         saveContext()
     }
 
-// MARK: - GetFavorites
+// MARK: - Get favorites
     func fetchFavoriteMovies() -> [FavoriteMovie] {
         let request = FavoriteMovie.fetchRequest()
         do {
@@ -33,7 +33,7 @@ final class FavoritesService {
         }
     }
 
-// MARK: - RemoveFromFavorite
+// MARK: - Remove from favorite
     func removeMovieFromFavorites(movieID: Int) {
         let request = FavoriteMovie.fetchRequest()
         request.predicate = NSPredicate(format: "id == %d", movieID)
@@ -47,7 +47,7 @@ final class FavoritesService {
         }
     }
 
-// MARK: - CheckIsFavorite
+// MARK: - Check is favorite
     func isMovieFavorite(movieID: Int) -> Bool {
         let request = FavoriteMovie.fetchRequest()
         request.predicate = NSPredicate(format: "id == %d", movieID)
@@ -61,7 +61,7 @@ final class FavoritesService {
         }
     }
 
-// MARK: - SaveToCoreData
+// MARK: - Save to CoreData
     private func saveContext() {
         CoreDataStack.shared.saveContext()
     }
