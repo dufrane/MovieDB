@@ -6,88 +6,94 @@
 //
 
 import Foundation
-import Combine
 
-final class MoviesViewModel: ObservableObject {
+final class MoviesViewModel {
     private weak var coordinator: MoviesCoordinator?
     private let apiService = APIService()
     private let favoritesService = FavoritesService()
-    @Published var movies: [Movie] = []
-    @Published var favoriteMovies: Set<Int64> = []
-    var cancellables = Set<AnyCancellable>()
-
+    
+    var movies: [Movie] = []
+    var favoriteMovies: Set<Int64> = []
+    
     init(coordinator: MoviesCoordinator) {
         self.coordinator = coordinator
         loadFavoriteMovies()
     }
-
+    
+// MARK: - Fetch movies
     func fetchMovies() {
-        apiService.fetchMovies(from: .popular)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
-                if case .failure(let error) = completion {
-                    print("Failed to fetch movies:", error)
+        apiService.fetchMovies(from: .popular) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let movies):
+                    self?.movies = movies
+                    self?.updateFavorites()
+                case .failure(let error):
+                    print("Failed to fetch movies:", error.localizedDescription)
                 }
-            }, receiveValue: { [weak self] movies in
-                self?.movies = movies
-                self?.updateFavorites()
-
-            })
-            .store(in: &cancellables)
-    }
-
-    func didSelectMovie(movie: Movie) {
-        coordinator?.start(with: movie)
-    }
-    
-    func searchMovies(query: String) {
-        apiService.fetchMovies(from: .search(query: query))
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] movies in
-                self?.movies = movies
-            })
-            .store(in: &cancellables)
-    }
-    
-    func fetchMovies(from category: APIService.MovieEndpoint) {
-        apiService.fetchMovies(from: category)
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
-                if case .failure(let error) = completion {
-                    print("Failed to fetch movies:", error)
-                }
-            }, receiveValue: { [weak self] movies in
-                self?.movies = movies
-            })
-            .store(in: &cancellables)
-    }
-    
-    func toggleFavorite(movie: Movie) {
-        if favoriteMovies.contains(Int64(movie.id)) {
-                favoritesService.removeMovieFromFavorites(movieID: movie.id)
-            favoriteMovies.remove(Int64(movie.id))
-            } else {
-                favoritesService.addMovieToFavorites(movie: movie)
-                favoriteMovies.insert(Int64(movie.id))
             }
         }
-
-        func isFavorite(movie: Movie) -> Bool {
-            return favoriteMovies.contains(Int64(movie.id))
+    }
+    
+// MARK: - Fetch movies by category
+        func fetchMovies(from category: APIService.MovieEndpoint, completion: @escaping () -> Void) {
+            apiService.fetchMovies(from: category) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let movies):
+                        self?.movies = movies
+                        completion()
+                    case .failure(let error):
+                        print("Failed to fetch category movies:", error.localizedDescription)
+                        completion()
+                    }
+                }
+            }
         }
-
-        private func loadFavoriteMovies() {
-            let savedFavorites = favoritesService.fetchFavoriteMovies().map { $0.id }
-            favoriteMovies = Set(savedFavorites)
+        
+// MARK: - Search movies
+    func searchMovies(query: String, completion: @escaping () -> Void) {
+        apiService.fetchMovies(from: .search(query: query)) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let movies):
+                    self?.movies = movies
+                case .failure(let error):
+                    print("Search failed:", error.localizedDescription)
+                }
+            }
         }
+    }
+    
+// MARK: - Favorite movie handling
+    func toggleFavorite(movie: Movie) {
+        let movieID = Int64(movie.id)
+        if favoriteMovies.contains(movieID) {
+            favoritesService.removeMovieFromFavorites(movieID: movie.id)
+            favoriteMovies.remove(movieID)
+        } else {
+            favoritesService.addMovieToFavorites(movie: movie)
+            favoriteMovies.insert(movieID)
+        }
+    }
+    
+    func isFavorite(movie: Movie) -> Bool {
+        return favoriteMovies.contains(Int64(movie.id))
+    }
+    
+    private func loadFavoriteMovies() {
+        let savedFavorites = favoritesService.fetchFavoriteMovies().map { $0.id }
+        favoriteMovies = Set(savedFavorites)
+    }
     
     private func updateFavorites() {
-            for movie in movies {
-                if favoritesService.isMovieFavorite(movieID: movie.id) {
-                    favoriteMovies.insert(Int64(movie.id))
-                } else {
-                    favoriteMovies.remove(Int64(movie.id))
-                }
+        for movie in movies {
+            let movieID = Int64(movie.id)
+            if favoritesService.isMovieFavorite(movieID: movie.id) {
+                favoriteMovies.insert(movieID)
+            } else {
+                favoriteMovies.remove(movieID)
             }
         }
+    }
 }

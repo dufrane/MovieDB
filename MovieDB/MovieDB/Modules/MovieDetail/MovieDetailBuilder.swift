@@ -12,7 +12,6 @@ final class MovieDetailBuilder {
         let apiService = APIService()
         let viewModel = MovieDetailViewModel(coordinator: coordinator, apiService: apiService)
         let viewController = MovieDetailViewController(viewModel: viewModel, movie: movie)
-        viewModel.fetchMovieDetail(movieID: movie.id)
         return viewController
     }
 }

@@ -7,31 +7,19 @@
 
 import UIKit
 
-final class MoviesCoordinator: MovieDetailCoordinatorProtocol {
+final class MoviesCoordinator {
     
     let navigationController: UINavigationController
-
+    private let movieDetailCoordinator: MovieDetailCoordinator
 
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
+        self.movieDetailCoordinator = MovieDetailCoordinator(navigationController: navigationController)
     }
 
     func start() -> UIViewController {
-        let moviesViewModel = MoviesViewModel(coordinator: self)
-        let moviesVC = MoviesViewController(viewModel: moviesViewModel)
-        moviesVC.title = "Movies"
+        let moviesVC = MoviesBuilder.build(coordinator: self, detailCoordinator: movieDetailCoordinator)
         navigationController.setViewControllers([moviesVC], animated: false)
         return moviesVC
     }
-
-    func start(with movie: Movie) {
-        let viewModel = MovieDetailViewModel(coordinator: self, apiService: APIService())
-        let detailVC = MovieDetailViewController(viewModel: viewModel, movie: movie)
-        navigationController.pushViewController(detailVC, animated: true)
-    }
-    
-    func closeMovieDetail() {
-        navigationController.popViewController(animated: true)
-    }
-    
 }

@@ -8,10 +8,10 @@
 import UIKit
 
 final class MoviesBuilder {
-    static func build(coordinator: MoviesCoordinator) -> MoviesViewController {
-        let viewModel = MoviesViewModel(coordinator: coordinator)
-        let viewController = MoviesViewController(viewModel: viewModel)
+    static func build(coordinator: MoviesCoordinator, detailCoordinator: MovieDetailCoordinator) -> MoviesViewController {
+        let moviesViewModel = MoviesViewModel(coordinator: coordinator)
+        let movieDetailViewModel = MovieDetailViewModel(coordinator: detailCoordinator, apiService: APIService())
+        let viewController = MoviesViewController(viewModel: moviesViewModel, detailViewModel: movieDetailViewModel)
         return viewController
     }
 }
-

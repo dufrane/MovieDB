@@ -12,14 +12,16 @@ protocol FavoritesCoordinatorProtocol {
     func showMovieDetail(movie: FavoriteMovie)
 }
 
-final class FavoritesCoordinator: FavoritesCoordinatorProtocol, MovieDetailCoordinatorProtocol {
+final class FavoritesCoordinator: FavoritesCoordinatorProtocol {
     let navigationController: UINavigationController
     weak var parentCoordinator: TabBarCoordinator?
-
+    private let movieDetailCoordinator: MovieDetailCoordinator
+    
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
+        self.movieDetailCoordinator = MovieDetailCoordinator(navigationController: navigationController)
     }
-
+    
     func start() -> UIViewController {
         let favoritesVC = FavoritesViewController()
         favoritesVC.title = "Favorites"
@@ -27,7 +29,7 @@ final class FavoritesCoordinator: FavoritesCoordinatorProtocol, MovieDetailCoord
         navigationController.setViewControllers([favoritesVC], animated: false)
         return favoritesVC
     }
-
+    
     func showMovieDetail(movie: FavoriteMovie) {
         let convertedMovie = Movie(
             id: Int(movie.id),
@@ -37,15 +39,9 @@ final class FavoritesCoordinator: FavoritesCoordinatorProtocol, MovieDetailCoord
             releaseDate: nil,
             voteAverage: 0.0
         )
-
-        let apiService = APIService()
-        let viewModel = MovieDetailViewModel(coordinator: self, apiService: apiService)
-        let detailVC = MovieDetailViewController(viewModel: viewModel, movie: convertedMovie) 
-
+        
+        let detailVC = MovieDetailBuilder.build(with: convertedMovie, coordinator: movieDetailCoordinator)
+        
         navigationController.pushViewController(detailVC, animated: true)
-    }
-
-    func closeMovieDetail() {
-        navigationController.popViewController(animated: true)
     }
 }

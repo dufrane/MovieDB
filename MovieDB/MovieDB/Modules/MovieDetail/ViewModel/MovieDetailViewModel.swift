@@ -6,52 +6,61 @@
 //
 
 import Foundation
-import Combine
 
-final class MovieDetailViewModel: ObservableObject {
-    var coordinator: MovieDetailCoordinatorProtocol
+final class MovieDetailViewModel {
+    var coordinator: MovieDetailCoordinator?
     private let apiService: APIService
-    private var cancellables = Set<AnyCancellable>()
-
-    @Published var movieDetail: MovieDetail? {
-        didSet {
-            print("Movie Detail Loaded:", movieDetail ?? "No Data")
-        }
-    }
-    @Published var cast: [Actor] = []
-    @Published var errorMessage: String?
-
-    init(coordinator: MovieDetailCoordinatorProtocol, apiService: APIService) {
+    
+    var movieDetail: MovieDetail?
+    var cast: [Actor] = []
+    var errorMessage: String?
+    
+    init(coordinator: MovieDetailCoordinator, apiService: APIService) {
         self.coordinator = coordinator
         self.apiService = apiService
     }
-
-    func fetchMovieDetail(movieID: Int) {
-        apiService.fetchMovieDetail(movieID: movieID)
-            .sink(receiveCompletion: { completion in
-                if case .failure(let error) = completion {
+    
+// MARK: - Fetch Movie Detail
+    func fetchMovieDetail(movieID: Int, completion: @escaping () -> Void) {
+        apiService.fetchMovieDetail(movieID: movieID) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let detail):
+                    self?.movieDetail = detail
+                    print("Movie Detail Loaded:", detail)
+                case .failure(let error):
+                    self?.errorMessage = error.localizedDescription
                     print("Error loading movie details:", error.localizedDescription)
                 }
-            }, receiveValue: { [weak self] detail in
-                self?.movieDetail = detail
-            })
-            .store(in: &cancellables)
+                completion()
+            }
+        }
     }
-
-
-    func fetchMovieCast(movieID: Int) {
-        apiService.fetchMovieCast(movieID: movieID)
-            .sink(receiveCompletion: { completion in
-                if case .failure(let error) = completion {
-                    self.errorMessage = error.localizedDescription
+    
+// MARK: - Fetch Movie Cast
+    func fetchMovieCast(movieID: Int, completion: @escaping () -> Void) {
+        apiService.fetchMovieCast(movieID: movieID) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let cast):
+                    self?.cast = cast
+                    print("Cast Loaded:", cast.count, "actors")
+                case .failure(let error):
+                    self?.errorMessage = error.localizedDescription
+                    print("Error loading cast:", error.localizedDescription)
                 }
-            }, receiveValue: { [weak self] cast in
-                self?.cast = cast
-            })
-            .store(in: &cancellables)
+                completion()
+            }
+        }
     }
-
+    
+// MARK: - Select Movie
+    func didSelectMovie(movie: Movie) {
+        coordinator?.start(with: movie)
+    }
+    
+// MARK: - Close Detail Screen
     func closeDetailScreen() {
-        coordinator.closeMovieDetail()
+        coordinator?.closeMovieDetail()
     }
 }

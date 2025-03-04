@@ -17,7 +17,7 @@ final class FavoritesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -29,7 +29,7 @@ final class FavoritesViewController: UIViewController {
         super.viewWillAppear(animated)
         fetchFavorites()
     }
-
+    
     private func setupTableView() {
         view.addSubview(tableView)
         tableView.delegate = self
@@ -42,7 +42,7 @@ final class FavoritesViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-
+    
     private func fetchFavorites() {
         favoriteMovies = FavoritesService.shared.fetchFavoriteMovies()
         tableView.reloadData()
@@ -54,7 +54,7 @@ extension FavoritesViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return favoriteMovies.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: MovieTableCell.identifier, for: indexPath) as? MovieTableCell else {
             return UITableViewCell()
@@ -62,12 +62,12 @@ extension FavoritesViewController: UITableViewDelegate, UITableViewDataSource {
         cell.configure(with: favoriteMovies[indexPath.row])
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedMovie = favoriteMovies[indexPath.row]
         coordinator?.showMovieDetail(movie: selectedMovie)
     }
-
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 150
     }

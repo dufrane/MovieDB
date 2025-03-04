@@ -13,17 +13,17 @@ protocol MovieDetailCoordinatorProtocol {
 
 final class MovieDetailCoordinator: MovieDetailCoordinatorProtocol {
     private weak var navigationController: UINavigationController?
-
+    
     init(navigationController: UINavigationController?) {
         self.navigationController = navigationController
     }
-
+    
     func start(with movie: Movie) {
         let viewModel = MovieDetailViewModel(coordinator: self, apiService: APIService())
         let detailVC = MovieDetailViewController(viewModel: viewModel, movie: movie)
         navigationController?.pushViewController(detailVC, animated: true)
     }
-
+    
     func closeMovieDetail() {
         navigationController?.popViewController(animated: true)
     }
