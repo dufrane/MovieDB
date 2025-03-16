@@ -53,15 +53,11 @@ final class MovieTableCell: UITableViewCell {
         ])
     }
 
-    func configure(with favoriteMovie: FavoriteMovie) {
-        titleLabel.text = favoriteMovie.title
-        
-        guard let posterPath = favoriteMovie.posterPath, !posterPath.isEmpty else {
-            movieImageView.image = UIImage(systemName: "photo")
-            return
+    func configure(with movie: Movie) {
+        titleLabel.text = movie.title
+        if let posterPath = movie.posterPath, !posterPath.isEmpty {
+            let posterURL = "https://image.tmdb.org/t/p/w500\(posterPath)"
+            movieImageView.sd_setImage(with: URL(string: posterURL), placeholderImage: UIImage(systemName: "photo"))
         }
-
-        let posterURL = "https://image.tmdb.org/t/p/w500\(posterPath)"
-        movieImageView.sd_setImage(with: URL(string: posterURL), placeholderImage: UIImage(systemName: "photo"))
     }
 }

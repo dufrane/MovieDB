@@ -12,19 +12,40 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     private let keychainService = KeychainService()
     
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        let navigationController = UINavigationController()
-        let moviesModule = MoviesBuilder.build(navigationController: navigationController)
+        let tabBarController = TabBarController()
+
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = navigationController
+        window?.rootViewController = tabBarController
+
         window?.makeKeyAndVisible()
         
         validateAPIKey()
-        navigationController.setViewControllers([moviesModule], animated: false)
     }
     
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        let isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
+        if isDarkMode {
+            UIApplication.shared.windows.forEach { window in
+                window.overrideUserInterfaceStyle = .dark
+            }
+        } else {
+            UIApplication.shared.windows.forEach { window in
+                window.overrideUserInterfaceStyle = .light
+            }
+        }
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("themeChanged"), object: nil, queue: .main) { _ in
+            let isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
+            UIApplication.shared.windows.forEach { window in
+                window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+            }
+        }
+
+    }
+
 // MARK: - Validate API Key
     private func validateAPIKey() {
         guard let apiKey = keychainService.getAPIKey() else {

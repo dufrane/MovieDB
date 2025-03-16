@@ -11,9 +11,14 @@ final class MoviesBuilder {
     static func build(navigationController: UINavigationController) -> UIViewController {
         let router = MoviesRouter(navigationController: navigationController)
         let interactor = MoviesInteractor()
-        let presenter = MoviesPresenter(interactor: interactor, router: router)
-        let viewController = MoviesViewController(presenter: presenter)
-        presenter.view = viewController
+
+        let viewController = MoviesViewController(presenter: nil)
+
+        if let view = viewController as? MoviesViewProtocol {
+            let presenter = MoviesPresenter(view: view, interactor: interactor, router: router)
+            viewController.presenter = presenter
+        }
+
         return viewController
     }
 }

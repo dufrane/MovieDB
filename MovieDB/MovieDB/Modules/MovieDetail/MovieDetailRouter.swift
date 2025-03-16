@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+protocol MovieDetailRouterProtocol: AnyObject {
+    func closeDetail()
+}
+
+final class MovieDetailRouter: MovieDetailRouterProtocol {
+    func closeDetail() {
+        print("Closing detail screen")
+    }
+}

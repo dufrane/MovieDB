@@ -20,7 +20,8 @@ final class MoviesRouter: MoviesRouterProtocol {
     }
 
     func navigateToMovieDetail(movie: Movie) {
-//        let detailVC = MovieDetailBuilder.build(movie: movie)
-//        navigationController?.pushViewController(detailVC, animated: true)
+        guard let navigationController = navigationController else { return }
+        let detailVC = MovieDetailBuilder.build(movie: movie, navigationController: navigationController)
+        navigationController.pushViewController(detailVC, animated: true)
     }
 }
